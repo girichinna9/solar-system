@@ -48,11 +48,6 @@ app.post('/planet', function(req, res) {
         { id: req.body.id },
         function(err, planetData) {
 
-            if (err) {
-                console.error(err);
-                return res.status(500).send("Database Error");
-            }
-
             if (!planetData) {
                 return res.status(404).send("Planet not found. Select a number from 0 to 8.");
             }
