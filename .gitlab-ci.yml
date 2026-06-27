@@ -14,6 +14,6 @@ unit_testing:
     before_script:
         - npm install
     script:
-        - echo "I am commiting it to feature/a branch"
+        - echo "I commiting it to feature/a branch"
         - npm test
 
