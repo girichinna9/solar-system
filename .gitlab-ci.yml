@@ -17,4 +17,12 @@ unit_testing:
     script:
         - echo "I commiting it to feature/a branch"
         - npm test
+    artifacts:
+      when: always
+      access: all
+      expire_in: 3 days
+      paths:
+        - test-results.xml
+      reports:
+        junit: test-results.xml
 
