@@ -12,6 +12,10 @@ unit_testing:
         - azure-linux-ubuntu-runner
     stage: test
     image: node:17-alpine3.14
+    cache:
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+            - node_modules/
     before_script:
         - npm install
     script:
@@ -30,6 +34,10 @@ coverage-testing:
         - azure-linux-ubuntu-runner
     stage: test
     image: node:17-alpine3.14
+    cache:
+        key: ${CI_COMMIT_REF_SLUG}
+        paths:
+            - node_modules/
     before_script:
         - npm install
     script:
