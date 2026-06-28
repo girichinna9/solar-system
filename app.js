@@ -11,16 +11,21 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '/')));
 app.use(cors())
 
-mongoose.connect(process.env.MONGO_URI, {
+/*mongoose.connect(process.env.MONGO_URI, {
     user: process.env.MONGO_USERNAME,
     pass: process.env.MONGO_PASSWORD,
+    useNewUrlParser: true,
+    useUnifiedTopology: true */
+mongoose.connect("mongodb://18.60.211.161:27017/solar-system", {
+    user: "solaruser",
+    pass: "StrongPassword123",
     useNewUrlParser: true,
     useUnifiedTopology: true
 }, function(err) {
     if (err) {
         console.log("error!! " + err)
     } else {
-      //  console.log("MongoDB Connection Successful")
+        console.log("MongoDB Connection Successful")
     }
 })
 
@@ -38,19 +43,19 @@ var planetModel = mongoose.model('planets', dataSchema);
 
 
 
-app.post('/planet',   function(req, res) {
-   // console.log("Received Planet ID " + req.body.id)
-    planetModel.findOne({
-        id: req.body.id
-    }, function(err, planetData) {
-        if (err) {
-            alert("Ooops, We only have 9 planets and a sun. Select a number from 0 - 9")
-            res.send("Error in Planet Data")
-        } else {
+app.post('/planet', function(req, res) {
+    planetModel.findOne(
+        { id: req.body.id },
+        function(err, planetData) {
+
+            if (!planetData) {
+                return res.status(404).send("Planet not found. Select a number from 0 to 8.");
+            }
+
             res.send(planetData);
         }
-    })
-})
+    );
+});
 
 app.get('/',   async (req, res) => {
     res.sendFile(path.join(__dirname, '/', 'index.html'));
