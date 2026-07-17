@@ -93,7 +93,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: GHCR login
+      - name: GHCR login 
         uses: docker/login-action@v2.2.0
         with:
           registry: ghcr.io
