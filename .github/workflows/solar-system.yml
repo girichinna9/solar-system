@@ -147,13 +147,24 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
           version: 'v1.26.0'
-      - name: set kubeconfig conetxt
-        uses: azure/k8s-set-context@v3
-        with: 
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-      - name: Fetch Kubernetes cluster details
+
+      - name: Create kubeconfig from GitHub secret
+        env:
+          KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
+        shell: bash
         run: |
-          kubectl version --short
+          mkdir -p ~/.kube
+          printf '%s
+          ' "$KUBECONFIG_CONTENT" > ~/.kube/config
+          chmod 600 ~/.kube/config
+          export KUBECONFIG=~/.kube/config
+
+      - name: Fetch Kubernetes cluster details
+        shell: bash
+        run: |
+          export KUBECONFIG=~/.kube/config
+          kubectl version --client
+          echo -------------------------------
+          kubectl config view --minify
           echo -------------------------------
           kubectl get nodes
