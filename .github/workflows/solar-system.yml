@@ -139,30 +139,26 @@ jobs:
            ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha}}
   dev-deploy:
     needs: [unit-testing, code-coverage, docker]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Install kubectl CLI
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.26.0'
 
-      - name: Create kubeconfig from GitHub secret
-        env:
-          KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
-        shell: bash
-        run: |
-          mkdir -p ~/.kube
-          printf '%s
-          ' "$KUBECONFIG_CONTENT" > ~/.kube/config
-          chmod 600 ~/.kube/config
-          export KUBECONFIG=~/.kube/config
+      # - name: Install kubectl CLI
+      #   uses: azure/setup-kubectl@v3
+      #   with:
+      #     version: 'v1.26.0'
+
+      # - name: Create kubeconfig from GitHub secret
+      #   env:
+      #     KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG }}
+      #   shell: bash
+      #   run: |
+          
 
       - name: Fetch Kubernetes cluster details
         shell: bash
         run: |
-          export KUBECONFIG=~/.kube/config
           kubectl version --client
           echo -------------------------------
           kubectl config view --minify
