@@ -168,8 +168,8 @@ jobs:
           $ip = kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
           "INGRESS_IP=$ip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: replace token in manifest files 
-        uses: cschleiden/replace-token@v1
+      - name: Replace Token in Manifest Files 
+        uses: cschleiden/replace-token@v2
         with:
           tokenPrefix: '${'
           tokensuffix: '}'
