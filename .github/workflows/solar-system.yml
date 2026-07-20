@@ -163,4 +163,4 @@ jobs:
           Write-Host "-------------------------------"
           kubectl config view --minify
           Write-Host "-------------------------------"
-          kubectl get nodes
+          kubectl get nodes 
