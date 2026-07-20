@@ -1,0 +1,11 @@
+﻿{
+  "agentId": 21,
+  "agentName": "MISLEKAR",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus22.actions.githubusercontent.com/iOmoUSUP1paWL7ovNUoR8IPuCBY6ekzk0GKE0J1f68DfgjQBYK/",
+  "gitHubUrl": "https://github.com/girichinna9/solar-system",
+  "workFolder": "_work",
+  "useV2Flow": true,
+  "serverUrlV2": "https://broker.actions.githubusercontent.com/"
+}

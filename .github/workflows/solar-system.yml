@@ -160,7 +160,7 @@ jobs:
         shell: bash
         run: |
           kubectl version --client
-          echo -------------------------------
+          Write-Host "-------------------------------"
           kubectl config view --minify
-          echo -------------------------------
+          Write-Host "-------------------------------"
           kubectl get nodes
