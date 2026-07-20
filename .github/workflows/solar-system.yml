@@ -157,7 +157,7 @@ jobs:
           
 
       - name: Fetch Kubernetes cluster details
-        shell: bash
+        shell: pwsh
         run: |
           kubectl version --client
           Write-Host "-------------------------------"
