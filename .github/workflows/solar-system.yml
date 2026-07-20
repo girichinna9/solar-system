@@ -11,7 +11,7 @@ env:
     MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD}}
 jobs:
-  Unit-testing:
+  Unit-Testing:
       name: Unit Testing
       strategy:
           matrix:
@@ -138,7 +138,7 @@ jobs:
            ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}    
            ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha}}
   dev-deploy:
-    needs: [unit-testing, code-coverage, docker]
+    needs: [Unit-Testing, Code-Coverage, Docker]
     runs-on: self-hosted
     steps:
       - name: Checkout Repository
@@ -162,4 +162,24 @@ jobs:
           Write-Host "-------------------------------"
           kubectl config view --minify
           Write-Host "-------------------------------"
-          kubectl get nodes   
+          kubectl get nodes  
+      - name: save nginx controller IP as a github enviroment variable
+        run: |
+          $ip = kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
+          "INGRESS_IP=$ip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: replace token in manifest files 
+        uses: cschleiden/replace-token@v1
+        with:
+          # tokenPrefix: '_{_'
+          # tokensuffix: '_}_'
+          files: '["kubernetes/development/*.yaml"]'
+          env:
+            NAMESPACE: ${{ vars.NAMESPACE }}
+            REPLICAS: ${{ vars.REPLICAS }}
+            IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/solar-system${{ github.sha }}
+            INGRESS_IP: ${{ env.INGRESS_IP }}
+
+      - name: check files
+        run: |
+          cat kubernetes/development/*.yaml 
