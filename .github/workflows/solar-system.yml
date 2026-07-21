@@ -214,7 +214,7 @@ jobs:
           env:
            URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
           run: |
-            echo "Testing URL: https://$URL/live"
+            echo "Testing URL: http://$URL/live"
             echo "--------------------------------"
 
             STATUS=$(curl -k -s "http://$URL/live" | jq -r '.status')
