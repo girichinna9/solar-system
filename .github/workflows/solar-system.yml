@@ -224,7 +224,7 @@ jobs:
         Write-Host $env:URL
         Write-Host "-------------------------------"
 
-        $response = Invoke-RestMethod -Uri "http://$env:URL/live" -SkipCertificateCheck
+        $response = Invoke-RestMethod -Uri "http://$env:URL/live"
 
         Write-Host $response.status
 
