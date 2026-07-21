@@ -212,14 +212,22 @@ jobs:
          "APP_INGRESS_HOST=$ingressHost" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
   Integration-Test:
-      name: Dev Integration Testing
-      needs: dev-deploy
-      runs-on: ubuntu-latest
-      steps: 
-      - name: Test URL Output using CURL and JQ
-        env:
-          URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
-        run: |
-          echo $URL
-          echo "-------------------------------"
-          curl https://$URL/Live -s -k | jq -r .status | grep -i live
+     name: Dev Integration Testing
+     needs: dev-deploy
+     runs-on: self-hosted
+
+     steps:
+     - name: Test URL Output
+       env: 
+        URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
+       run: |
+        Write-Host $env:URL
+        Write-Host "-------------------------------"
+
+        $response = Invoke-RestMethod -Uri "https://$env:URL/live" -SkipCertificateCheck
+
+        Write-Host $response.status
+
+        if ($response.status -ne "live") {
+          throw "Application is not live."
+        }
