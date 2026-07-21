@@ -191,25 +191,41 @@ jobs:
             --from-literal=MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-        - name: Deploy to Dev Environment
+        - name: Deploy Application
           run: |
             kubectl apply -f kubernetes/development
+
+        - name: Wait for Deployment
+          run: |
+            kubectl rollout status deployment/solar-system \
+            -n ${{ vars.NAMESPACE }} --timeout=180s
+
+        - name: Verify Resources
+          run: |
+            kubectl get all -n ${{ vars.NAMESPACE }}
+            kubectl get ingress -n ${{ vars.NAMESPACE }}
 
         - name: Set App Ingress Host
           id: set-ingress-host-address
           run: |
-           APP_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath='{.items[0].spec.rules[0].host}')
+            APP_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath='{.items[0].spec.rules[0].host}')
 
-           echo "Application Host: $APP_HOST"
+            echo "Application Host: $APP_HOST"
+  
+            echo "APP_INGRESS_HOST=$APP_HOST" >> "$GITHUB_OUTPUT"
 
-           echo "APP_INGRESS_HOST=$APP_HOST" >> "$GITHUB_OUTPUT"
-
-  Integration-Test:
-      name: Dev Integration Testing
+    Integration-Test:
+      name: Dev Integration testing
       needs: dev-deploy
       runs-on:
         - self-hosted
+        - Linux
+
       steps:
+        - name: Verify Output
+          run: |
+            echo "Ingress URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}"
+
         - name: Test URL Output
           env:
             URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
