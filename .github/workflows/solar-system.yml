@@ -138,10 +138,12 @@ jobs:
            ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}    
            ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha}}
   dev-deploy:
-      name: Deploy to Development
+      if : contains(github.ref, 'feature/')
       needs: docker
       runs-on: self-hosted
-
+      environment:
+       name: development
+       url: https://${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
       outputs:
        APP_INGRESS_URL: ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
 
@@ -213,8 +215,8 @@ jobs:
           echo "Application Host: $APP_HOST"
   
           echo "APP_INGRESS_HOST=$APP_HOST" >> "$GITHUB_OUTPUT"
-
-  Integration-Test:
+  Dev-Integration-Test:
+    if : contains(github.ref, 'feature/')
     name: Dev Integration testing
     needs: dev-deploy
     runs-on:
@@ -226,6 +228,113 @@ jobs:
       run: |
         echo "Ingress URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}"
 
+    - name: Test URL Output
+      env:
+        URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
+      run: |
+        echo "Testing URL: https://$URL/live"
+
+        RESPONSE=$(curl -k -s "https://$URL/live")
+
+        echo "Response: $RESPONSE"
+
+        STATUS=$(echo "$RESPONSE" | jq -r '.status')
+
+        echo "Status: $STATUS"
+
+        if [ "$STATUS" != "live" ]; then
+          echo "Application is not live."
+          exit 1
+        fi
+
+        echo "Integration Test Passed."
+  prod-deploy:
+      if : contains(github.ref, 'feature/')
+      needs: docker
+      runs-on: self-hosted
+      environment:
+       name: production
+       url: https://${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
+      outputs:
+       APP_INGRESS_URL: ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
+
+      steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Kubernetes
+        run: |
+          kubectl version
+          kubectl config current-context
+          kubectl get nodes
+          minikube status
+
+      - name: Save Minikube IP
+        run: |
+          IP=$(minikube ip)
+          echo "INGRESS_IP=$IP" >> "$GITHUB_ENV"
+          echo "Minikube IP: $IP"
+
+      - name: Replace Tokens
+        uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: '${'
+          tokenSuffix: '}'
+          files: '["kubernetes/development/*.yaml"]'
+        env:
+          NAMESPACE: ${{ vars.NAMESPACE }}
+          REPLICAS: ${{ vars.REPLICAS }}
+          K8S_IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+          INGRESS_IP: ${{ env.INGRESS_IP }}
+
+      - name: Check Kubernetes Manifests
+        run: |
+          cat kubernetes/development/*.yaml
+
+      - name: Create Namespace
+        run: |
+          kubectl create namespace ${{ vars.NAMESPACE }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create MongoDB Secret
+        run: |
+            kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds \
+            --from-literal=MONGO_URI="${{ env.MONGO_URI }}" \
+            --from-literal=MONGO_USERNAME="${{ vars.MONGO_USERNAME }}" \
+            --from-literal=MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Application
+        run: |
+          kubectl apply -f kubernetes/development
+
+      - name: Wait for Deployment
+        run: |
+          kubectl rollout status deployment/solar-system \
+          -n ${{ vars.NAMESPACE }} --timeout=90s
+
+      - name: Verify Resources
+        run: |
+          kubectl get all -n ${{ vars.NAMESPACE }}
+            kubectl get ingress -n ${{ vars.NAMESPACE }}
+
+      - name: Set App Ingress Host
+        id: set-ingress-host-address
+        run: |
+          APP_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath='{.items[0].spec.rules[0].host}')
+
+          echo "Application Host: $APP_HOST"
+  
+          echo "APP_INGRESS_HOST=$APP_HOST" >> "$GITHUB_OUTPUT"
+
+  Production-Integration-Test:
+    if : contains(github.ref, 'feature/')
+    name: Prod Integration testing
+    needs: prod-deploy
+    runs-on:
+      - self-hosted
+      - Linux
+    steps:
     - name: Test URL Output
       env:
         URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
