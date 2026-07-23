@@ -249,8 +249,8 @@ jobs:
 
         echo "Integration Test Passed."
   prod-deploy:
-      if : contains(github.ref, 'feature/')
-      needs: docker
+      if : github.ref == 'refs/heads/main'
+      needs: Dev-Integration-Test
       runs-on: self-hosted
       environment:
        name: production
@@ -328,7 +328,7 @@ jobs:
           echo "APP_INGRESS_HOST=$APP_HOST" >> "$GITHUB_OUTPUT"
 
   Production-Integration-Test:
-    if : contains(github.ref, 'feature/')
+    if : github.ref == 'refs/heads/main'
     name: Prod Integration testing
     needs: prod-deploy
     runs-on:
