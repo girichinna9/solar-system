@@ -250,7 +250,7 @@ jobs:
         echo "Integration Test Passed."
   prod-deploy:
       if : github.ref == 'refs/heads/main'
-      needs: Dev-Integration-Test
+      needs: Docker
       runs-on: self-hosted
       environment:
        name: production
