@@ -90,12 +90,12 @@ jobs:
       - name: download mocha test artifact
         uses: actions/download-artifact@v4
         with:
-          name: mocha-test-results
+          name: Mocha-Test-Results
 
       - name: download code coverage artifact
         uses: actions/download-artifact@v4
         with:
-          name: code-coverage-results
+          name: Code-Coverage-Results
 
       - name: merge test files
         run: |
