@@ -176,6 +176,8 @@ jobs:
       if : github.ref == 'refs/heads/main'
       needs: Docker
       uses: ./.github/workflows/reuse-deployment.yml  
+      secrets:
+       mongodb-password: ${{ secrets.MONGO_PASSWORD }}
     
   Production-Integration-Test:
     if : github.ref == 'refs/heads/main'
