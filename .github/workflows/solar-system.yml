@@ -148,7 +148,6 @@ jobs:
     needs: dev-deploy
     runs-on:
       - self-hosted
-      - Linux
 
     steps:
     - name: Verify Output
@@ -157,7 +156,7 @@ jobs:
 
     - name: Test URL Output
       env:
-        URL: ${{ needs.prod-deploy.outputs.APP_INGRESS_URL }}
+        URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
       run: |
         echo "Testing URL: https://$URL/live"
 
@@ -180,7 +179,6 @@ jobs:
       needs: Docker
       uses: ./.github/workflows/reuse-deployment.yml  
     
-
   Production-Integration-Test:
     if : github.ref == 'refs/heads/main'
     name: Prod Integration testing
