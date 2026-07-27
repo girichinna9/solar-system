@@ -7,7 +7,7 @@ on:
      - main
      - feature/*
 env: 
-    MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
+    MONGO_URI: ${{ vars.MONGO_URI }}
     MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD}}
 jobs:
@@ -143,6 +143,10 @@ jobs:
       uses: ./.github/workflows/reuse-deployment.yml
       secrets: 
         mongodb-password: ${{ secrets.MONGO_PASSWORD }}
+      with: 
+        mongodb-uri: ${{ vars.MONGO_URI }}
+        environment: development
+        k8s-manifest-dir: kubernetes/development/
       
   Dev-Integration-Test:
     if : contains(github.ref, 'feature/')
@@ -178,7 +182,11 @@ jobs:
       uses: ./.github/workflows/reuse-deployment.yml  
       secrets:
        mongodb-password: ${{ secrets.MONGO_PASSWORD }}
-    
+      with: 
+        mongodb-uri: ${{ vars.MONGO_URI }}
+        environment: production
+        k8s-manifest-dir: kubernetes/staging/
+        
   Production-Integration-Test:
     if : github.ref == 'refs/heads/main'
     name: Prod Integration testing
