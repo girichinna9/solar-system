@@ -141,6 +141,8 @@ jobs:
       if : contains(github.ref, 'feature/')
       needs: docker
       uses: ./.github/workflows/reuse-deployment.yml
+      secrets: 
+        mongodb-password: ${{ secrets.MONGO_PASSWORD }}
       
   Dev-Integration-Test:
     if : contains(github.ref, 'feature/')
