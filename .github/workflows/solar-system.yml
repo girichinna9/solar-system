@@ -43,11 +43,11 @@ jobs:
         id: nodejs-unit-testing-step
         run: npm test
 
-      - name: Archive/upload Test Result
+      - name: Archive/upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Mocha-Test-Result
+          name: Mocha-Test-Results
           path: test-results.xml
   Code-Coverage:
       needs: Unit-testing
@@ -78,7 +78,7 @@ jobs:
       - name: Archive/upload Test Result
         uses: actions/upload-artifact@v4
         with:
-          name: Code-Coverage-Result
+          name: Code-Coverage-Results
           path: coverage
           retention-days: 5
   reports-s3:
