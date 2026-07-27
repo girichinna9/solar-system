@@ -240,7 +240,7 @@ jobs:
 
         STATUS=$(echo "$RESPONSE" | jq -r '.status')
 
-        echo "Status: $STATUS"
+        echo "Status: $STATUS" 
 
         if [ "$STATUS" != "live" ]; then
           echo "Application is not live."
