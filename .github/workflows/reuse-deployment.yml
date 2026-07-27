@@ -1,13 +1,15 @@
 name: Deployment -  Reusbale workflow
 on: 
   workflow_call:
+   outputs:
+      APP_INGRESS_URL:
+        description: Application Ingress URL
+        value: ${{ jobs.reuse-deploy.outputs.APP_INGRESS_URL }}
 jobs:
   reuse-deploy: 
     environment:
       name: development
       url: https://${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
-    outputs:
-      APP_INGRESS_URL: ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
     runs-on: self-hosted
     steps:
       - name: Checkout Repository
@@ -26,8 +28,8 @@ jobs:
       - name: Replace Tokens
         uses: cschleiden/replace-tokens@v1
         with:
-          tokenPrefix: ${
-          tokenSuffix: "}"
+          tokenPrefix: '${'
+          tokenSuffix: '}'
           files: '["kubernetes/development/*.yaml"]'
         env:
           NAMESPACE: ${{ vars.NAMESPACE }}
@@ -66,12 +68,12 @@ jobs:
       - name: Set App Ingress Host
         id: set-ingress-host-address
         run: |
-          APP_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o
-          jsonpath='{.items[0].spec.rules[0].host}')
+         APP_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath='{.items[0].spec.rules[0].host}')
 
+         echo "Application Host: $APP_HOST"
 
-          echo "Application Host: $APP_HOST"
-
-
-          echo "APP_INGRESS_HOST=$APP_HOST" >> "$GITHUB_OUTPUT"
+         echo "APP_INGRESS_HOST=$APP_HOST" >> $GITHUB_OUTPUT
+      - name: Debug Output
+        run: |
+         echo "Output = ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}"
   
