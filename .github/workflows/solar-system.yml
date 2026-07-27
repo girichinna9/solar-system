@@ -157,7 +157,7 @@ jobs:
 
     - name: Test URL Output
       env:
-        URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
+        URL: ${{ needs.prod-deploy.outputs.APP_INGRESS_URL }}
       run: |
         echo "Testing URL: https://$URL/live"
 
