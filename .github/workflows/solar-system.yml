@@ -152,11 +152,11 @@ jobs:
     steps:
     - name: Verify Output
       run: |
-        echo "Ingress URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}"
+        echo "Ingress URL: ${{ needs.reuse-deploy.outputs.APP_INGRESS_URL }}"
 
     - name: Test URL Output
       env:
-        URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
+        URL: ${{ needs.reuse-deploy.outputs.APP_INGRESS_URL }}
       run: |
         echo "Testing URL: https://$URL/live"
 
