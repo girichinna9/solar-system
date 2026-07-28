@@ -132,7 +132,7 @@ jobs:
       #  SLACK_CHANNEL: github-actions-channel
       #  SLACK_COLOR: ${{ job.status }} #specific color like good or ff00ff
       #  SLACK_MESSAGE: ':hammer_and_wrench Triggered by ${{ github.actor }}'
-      #  SLACK_TITLE: 'Slack Notification Information'
+       SLACK_TITLE: 'Slack Notification Information'
        SLACK_MESSAGE: |
         Pipeline Status: ${{ job.status }}
         Triggered by: ${{ github.actor }}
