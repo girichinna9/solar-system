@@ -120,7 +120,7 @@ jobs:
   slack-notification:
     if: always()
     name: Kode Kloud Labs slack Notification
-    needs: [unit-testing, Code-Coverage, reports-s3]
+    # needs: [unit-testing, Code-Coverage, reports-s3]
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
